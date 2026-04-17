@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鹦鹉交易市场 - 牡丹鹦鹉 & 虎皮鹦鹉</title>
+    <title>食物不耐受记录</title>
     <style>
         * {
             margin: 0;
@@ -12,572 +12,1114 @@
         }
 
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
         }
 
-        /* 导航栏 */
-        nav {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1200px;
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.moderate { background: #ff4757; }
+        .legend-dot.locked { background: #9b59b6; }
+        .legend-dot.available { background: #2ed573; }
+
+        .date-selector {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .date-selector button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-selector button:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .date-display {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        /* 锁定名单 */
+        .lock-list {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .lock-list h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lock-list .lock-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .lock-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .lock-item {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .lock-item .emoji {
+            font-size: 1.5rem;
+        }
+
+        .lock-item .info {
+            color: white;
+        }
+
+        .lock-item .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .lock-item .timer {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .lock-item .timer.urgent {
+            background: #ff4757;
+            padding: 2px 8px;
+            border-radius: 10px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .lock-item .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .lock-item .progress {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+
+        .empty-locks {
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 20px;
+            font-size: 0.95rem;
+        }
+
+        .warning-panel {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .warning-panel h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-panel ul {
+            color: #856404;
+            padding-left: 20px;
+            font-size: 0.9rem;
+        }
+
+        .warning-panel li {
+            margin-bottom: 5px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .stats-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-item {
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-item.moderate { background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%); }
+        .stat-item.locked { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+        .stat-item.available { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); }
+        .stat-item.warning { background: linear-gradient(135deg, #ffa502 0%, #ffbe76 100%); }
+
+        .stat-item .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .stat-item .label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .food-grid {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .food-category {
+            margin-bottom: 25px;
+        }
+
+        .food-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-title {
+            color: #667eea;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .category-title .left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-title .emoji {
+            font-size: 1.2rem;
+        }
+
+        .category-title .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: normal;
+        }
+
+        .badge.moderate { background: #ff4757; color: white; }
+        .badge.locked { background: #9b59b6; color: white; }
+        .badge.available { background: #2ed573; color: white; }
+
+        .food-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .food-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            user-select: none;
+            position: relative;
+        }
+
+        .food-item:hover:not(.locked) {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .food-item.moderate { background: #fff5f5; color: #ff4757; }
+        .food-item.moderate:hover:not(.locked) { background: #ffe5e5; }
+
+        .food-item.locked {
+            background: #f5f0f7;
+            color: #9b59b6;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .food-item.available { background: #f0fff4; color: #2ed573; }
+        .food-item.available:hover { background: #e0fff0; }
+
+        .food-item .food-emoji {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+        }
+
+        .food-item .food-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .food-item .status-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .status-badge.moderate { background: #ff4757; color: white; }
+        .status-badge.locked { background: #9b59b6; color: white; }
+        .status-badge.available { background: #2ed573; color: white; }
+
+        .lock-timer {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            padding: 2px 6px;
+            background: rgba(155, 89, 182, 0.2);
+            border-radius: 4px;
+            color: #9b59b6;
+        }
+
+        .lock-timer.urgent {
+            background: #ff4757;
+            color: white;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .history-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-date-group {
+            margin-bottom: 15px;
+        }
+
+        .history-date-header {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
+        .history-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .logo-icon {
-            font-size: 2rem;
+        .history-item:hover {
+            background: #f8f9fa;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: #667eea;
-        }
-
-        /* Hero 区域 */
-        .hero {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            color: white;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 2rem;
-        }
-
-        .hero-btn {
-            padding: 1rem 3rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .hero-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        /* 搜索区域 */
-        .search-section {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 1rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .search-input {
+        .history-foods {
             flex: 1;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .search-btn {
-            padding: 0.8rem 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-
-        .search-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* 鹦鹉分类 */
-        .categories {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            color: white;
-            margin-bottom: 2rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .category-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .category-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
+            flex-wrap: wrap;
+            gap: 5px;
         }
 
-        .category-info {
-            padding: 1.5rem;
-        }
-
-        .category-name {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-
-        .category-desc {
-            color: #666;
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-
-        .category-price {
-            font-size: 1.3rem;
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        .category-btn {
-            width: 100%;
-            padding: 0.8rem;
-            margin-top: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-
-        .category-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* 鹦鹉列表 */
-        .parrots-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .parrot-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .parrot-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .parrot-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-        }
-
-        .parrot-info {
-            padding: 1.5rem;
-        }
-
-        .parrot-name {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-
-        .parrot-type {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .history-food-tag {
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 0.8rem;
-            margin-bottom: 1rem;
+            color: white;
         }
 
-        .parrot-details {
-            color: #666;
-            margin-bottom: 1rem;
-            line-height: 1.8;
-        }
+        .history-food-tag.moderate { background: #ff4757; }
+        .history-food-tag.locked { background: #9b59b6; }
+        .history-food-tag.available { background: #2ed573; }
 
-        .parrot-price {
-            font-size: 1.5rem;
-            color: #667eea;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .contact-btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .history-delete {
+            background: #dc3545;
             color: white;
             border: none;
-            border-radius: 25px;
+            padding: 5px 10px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.3s;
+            font-size: 0.8rem;
+            transition: background 0.2s;
         }
 
-        .contact-btn:hover {
-            transform: scale(1.05);
+        .history-delete:hover {
+            background: #c82333;
         }
 
-        /* 页脚 */
-        footer {
-            background: rgba(255, 255, 255, 0.95);
+        .clear-all {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .clear-all:hover {
+            background: #5a6268;
+        }
+
+        .empty-history {
             text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
-            color: #666;
+            color: #999;
+            padding: 40px;
         }
 
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
+        .empty-history .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.6rem;
             }
 
-            .hero h1 {
-                font-size: 1.8rem;
+            .date-display {
+                font-size: 1.1rem;
+                min-width: 150px;
             }
 
-            .search-box {
-                flex-direction: column;
-                border-radius: 15px;
+            .food-items {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
             }
 
-            .search-btn {
-                width: 100%;
+            .food-item {
+                padding: 10px 6px;
             }
+
+            .food-item .food-emoji {
+                font-size: 1.3rem;
+            }
+
+            .food-item .food-name {
+                font-size: 0.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .lock-item {
+                min-width: 130px;
+                padding: 10px 12px;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        .toast.warning {
+            background: #f39c12;
+        }
+
+        .toast.success {
+            background: #2ed573;
         }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav>
-        <div class="nav-container">
-            <div class="logo">
-                <span class="logo-icon">🦜</span>
-                鹦鹉交易市场
+    <div class="container">
+        <header>
+            <h1>🍽️ 食物不耐受记录</h1>
+            <p>记录每日食物摄入，守护身体健康</p>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot moderate"></div>中度不耐受（忌口）</div>
+                <div class="legend-item"><div class="legend-dot locked"></div>锁定中（轮换中）</div>
+                <div class="legend-item"><div class="legend-dot available"></div>可食用</div>
             </div>
-            <ul class="nav-links">
-                <li><a href="#home">首页</a></li>
-                <li><a href="#categories">鹦鹉分类</a></li>
-                <li><a href="#listings">在售鹦鹉</a></li>
-                <li><a href="#about">关于我们</a></li>
-            </ul>
+        </header>
+
+        <div class="date-selector">
+            <button onclick="changeDate(-1)">◀</button>
+            <div class="date-display" id="currentDate"></div>
+            <button onclick="changeDate(1)">▶</button>
+            <button onclick="goToToday()" style="width: auto; padding: 0 15px; border-radius: 8px;">今天</button>
         </div>
-    </nav>
 
-    <!-- Hero 区域 -->
-    <section class="hero" id="home">
-        <h1>🦜 欢迎来到鹦鹉交易市场</h1>
-        <p>专业的牡丹鹦鹉和虎皮鹦鹉交易平台</p>
-        <button class="hero-btn" onclick="scrollToListings()">开始浏览</button>
-    </section>
-
-    <!-- 搜索区域 -->
-    <section class="search-section">
-        <div class="search-box">
-            <input type="text" class="search-input" placeholder="搜索鹦鹉品种、价格...">
-            <button class="search-btn">搜索</button>
+        <div class="lock-list" id="lockList">
+            <h3>🔒 锁定名单 <span class="lock-count" id="lockCount">0</span></h3>
+            <div class="lock-items" id="lockItems"></div>
         </div>
-    </section>
 
-    <!-- 鹦鹉分类 -->
-    <section class="categories" id="categories">
-        <h2 class="section-title">热门鹦鹉品种</h2>
-        <div class="category-grid">
-            <!-- 牡丹鹦鹉 -->
-            <div class="category-card">
-                <div class="category-image">🦜</div>
-                <div class="category-info">
-                    <h3 class="category-name">牡丹鹦鹉</h3>
-                    <p class="category-desc">
-                        温顺可爱，色彩艳丽，是家庭宠物的理想选择。
-                        适合初学者饲养，易于驯化。
-                    </p>
-                    <p class="category-price">¥50 - ¥300</p>
-                    <button class="category-btn" onclick="filterParrots('mudan')">查看牡丹鹦鹉</button>
+        <div class="warning-panel" id="warningPanel" style="display: none;">
+            <h4>⚠️ 饮食警告</h4>
+            <ul id="warningList"></ul>
+        </div>
+
+        <div class="stats-card">
+            <h3>📊 今日统计</h3>
+            <div class="stats-grid">
+                <div class="stat-item warning">
+                    <div class="number" id="totalEaten">0</div>
+                    <div class="label">今日摄入</div>
                 </div>
-            </div>
-
-            <!-- 虎皮鹦鹉 -->
-            <div class="category-card">
-                <div class="category-image">🦜</div>
-                <div class="category-info">
-                    <h3 class="category-name">虎皮鹦鹉</h3>
-                    <p class="category-desc">
-                        聪明活泼，会学人说话，品种繁多。
-                        互动性强，适合儿童和老人饲养。
-                    </p>
-                    <p class="category-price">¥20 - ¥200</p>
-                    <button class="category-btn" onclick="filterParrots('hupi')">查看虎皮鹦鹉</button>
+                <div class="stat-item moderate">
+                    <div class="number" id="moderateCount">0</div>
+                    <div class="label">中度不耐受</div>
                 </div>
-            </div>
-
-            <!-- 珍贵品种 -->
-            <div class="category-card">
-                <div class="category-image">🦜</div>
-                <div class="category-info">
-                    <h3 class="category-name">珍贵品种</h3>
-                    <p class="category-desc">
-                        稀有颜色和变异品种，收藏价值高。
-                        包括蓝化、黄化等特殊品种。
-                    </p>
-                    <p class="category-price">¥200 - ¥1000+</p>
-                    <button class="category-btn" onclick="filterParrots('rare')">查看珍贵品种</button>
+                <div class="stat-item locked">
+                    <div class="number" id="lockedCount">0</div>
+                    <div class="label">锁定中</div>
+                </div>
+                <div class="stat-item available">
+                    <div class="number" id="availableCount">0</div>
+                    <div class="label">可食用</div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- 鹦鹉列表 -->
-    <section class="categories" id="listings">
-        <h2 class="section-title">在售鹦鹉</h2>
-        <div class="parrots-grid">
-            <!-- 牡丹鹦鹉 1 -->
-            <div class="parrot-card" data-type="mudan">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">红牡丹鹦鹉</h3>
-                    <span class="parrot-type">牡丹鹦鹉</span>
-                    <p class="parrot-details">
-                        📍 地点：北京<br>
-                        🎂 年龄：3个月<br>
-                        ⚖️ 重量：40g
-                    </p>
-                    <p class="parrot-price">¥150</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
+        <div class="food-grid" id="foodGrid"></div>
 
-            <!-- 牡丹鹦鹉 2 -->
-            <div class="parrot-card" data-type="mudan">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">蓝牡丹鹦鹉</h3>
-                    <span class="parrot-type">牡丹鹦鹉</span>
-                    <p class="parrot-details">
-                        📍 地点：上海<br>
-                        🎂 年龄：4个月<br>
-                        ⚖️ 重量：45g
-                    </p>
-                    <p class="parrot-price">¥200</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
-
-            <!-- 虎皮鹦鹉 1 -->
-            <div class="parrot-card" data-type="hupi">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">黄绿虎皮鹦鹉</h3>
-                    <span class="parrot-type">虎皮鹦鹉</span>
-                    <p class="parrot-details">
-                        📍 地点：广州<br>
-                        🎂 年龄：2个月<br>
-                        ⚖️ 重量：35g
-                    </p>
-                    <p class="parrot-price">¥80</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
-
-            <!-- 虎皮鹦鹉 2 -->
-            <div class="parrot-card" data-type="hupi">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">蓝白虎皮鹦鹉</h3>
-                    <span class="parrot-type">虎皮鹦鹉</span>
-                    <p class="parrot-details">
-                        📍 地点：深圳<br>
-                        🎂 年龄：3个月<br>
-                        ⚖️ 重量：38g
-                    </p>
-                    <p class="parrot-price">¥120</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
-
-            <!-- 珍贵品种 -->
-            <div class="parrot-card" data-type="rare">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">黄化牡丹鹦鹉</h3>
-                    <span class="parrot-type">珍贵品种</span>
-                    <p class="parrot-details">
-                        📍 地点：杭州<br>
-                        🎂 年龄：5个月<br>
-                        ⚖️ 重量：50g
-                    </p>
-                    <p class="parrot-price">¥350</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
-
-            <!-- 珍贵品种 -->
-            <div class="parrot-card" data-type="rare">
-                <div class="parrot-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem;">🦜</div>
-                <div class="parrot-info">
-                    <h3 class="parrot-name">蓝化虎皮鹦鹉</h3>
-                    <span class="parrot-type">珍贵品种</span>
-                    <p class="parrot-details">
-                        📍 地点：成都<br>
-                        🎂 年龄：4个月<br>
-                        ⚖️ 重量：40g
-                    </p>
-                    <p class="parrot-price">¥280</p>
-                    <button class="contact-btn">联系卖家</button>
-                </div>
-            </div>
+        <div class="history-section">
+            <h3>📅 历史记录</h3>
+            <div class="history-list" id="historyList"></div>
+            <button class="clear-all" onclick="clearAllHistory()">清空全部记录</button>
         </div>
-    </section>
+    </div>
 
-    <!-- 页脚 -->
-    <footer id="about">
-        <p>© 2024 鹦鹉交易市场 - 牡丹鹦鹉 & 虎皮鹦鹉交易平台</p>
-        <p style="margin-top: 0.5rem;">安全交易 · 健康保障 · 诚信经营</p>
-    </footer>
+    <div class="toast" id="toast"></div>
 
     <script>
-        // 平滑滚动到列表区域
-        function scrollToListings() {
-            document.getElementById('listings').scrollIntoView({ behavior: 'smooth' });
+        // 轮换间隔（天）
+        const ROTATION_DAYS = 3;
+
+        // 中度不耐受食物（需忌口）
+        const moderateFoods = ['杏仁', '花生', '鸡蛋', '茄子'];
+
+        // 轻度不耐受食物（需轮换）
+        const mildFoods = ['大麦', '大米', '小麦', '腰果', '葵花籽', '西瓜', '芝麻', '菜花', '旱芹', '生菜', '西红柿', '马铃薯', '菠菜', '南瓜', '甘薯', '香菜', '小白菜', '牡蛎', '三文鱼', '扇贝', '对虾'];
+
+        // 所有需要轮换的食物
+        const rotationFoods = [...mildFoods];
+
+        // 食物分类
+        const foods = {
+            '🥜 坚果类': ['杏仁', '花生', '腰果'],
+            '🌾 谷物类': ['大麦', '小麦', '大米'],
+            '🥚 蛋类': ['鸡蛋'],
+            '🥬 蔬菜类': ['茄子', '菜花', '旱芹', '生菜', '西红柿', '马铃薯', '菠菜', '南瓜', '甘薯', '香菜', '小白菜'],
+            '🌻 种子类': ['葵花籽', '芝麻'],
+            '🍉 水果类': ['西瓜'],
+            '🦐 海鲜类': ['牡蛎', '三文鱼', '扇贝', '对虾']
+        };
+
+        let currentDate = new Date();
+        let foodData = JSON.parse(localStorage.getItem('foodIntoleranceData')) || {};
+
+        // 获取食物等级
+        function getFoodLevel(food) {
+            if (moderateFoods.includes(food)) return 'moderate';
+            if (mildFoods.includes(food)) return 'mild';
+            return 'safe';
         }
 
-        // 筛选鹦鹉
-        function filterParrots(type) {
-            const cards = document.querySelectorAll('.parrot-card');
+        // 获取食物emoji
+        function getFoodEmoji(food) {
+            const emojis = {
+                '杏仁': '🥜', '花生': '🥜', '腰果': '🌰',
+                '大麦': '🌾', '小麦': '🌾', '大米': '🍚',
+                '鸡蛋': '🥚',
+                '茄子': '🍆', '菜花': '🥦', '旱芹': '🥬', '生菜': '🥬', 
+                '西红柿': '🍅', '马铃薯': '🥔', '菠菜': '🥬', '南瓜': '🎃', 
+                '甘薯': '🍠', '香菜': '🌿', '小白菜': '🥬',
+                '葵花籽': '🌻', '芝麻': '⚪',
+                '西瓜': '🍉',
+                '牡蛎': '🦪', '三文鱼': '🐟', '扇贝': '🐚', '对虾': '🦐'
+            };
+            return emojis[food] || '🍽️';
+        }
+
+        // 获取北京时间今天日期
+        function getBeijingToday() {
+            const now = new Date();
+            const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+            return new Date(beijingTime.toISOString().split('T')[0]);
+        }
+
+        // 获取日期键（北京时间）
+        function getDateKey(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 获取上次食用日期
+        function getLastEatenDate(food) {
+            const dates = Object.keys(foodData).sort((a, b) => new Date(b) - new Date(a));
+            for (const date of dates) {
+                if (foodData[date] && foodData[date].includes(food)) {
+                    return new Date(date);
+                }
+            }
+            return null;
+        }
+
+        // 获取食物锁定信息
+        // 获取食物锁定信息（可指定参考日期）
+        function getFoodLockInfo(food, referenceDate = null) {
+            const today = referenceDate || getBeijingToday();
+            const lastEaten = getLastEatenDate(food);
             
-            cards.forEach(card => {
-                if (type === 'all') {
-                    card.style.display = 'block';
+            if (!lastEaten) return null;
+            
+            const daysSince = Math.floor((today - lastEaten) / (1000 * 60 * 60 * 24));
+            
+            if (daysSince < ROTATION_DAYS) {
+                const remaining = ROTATION_DAYS - daysSince;
+                return {
+                    locked: true,
+                    daysSince,
+                    remaining,
+                    lastEaten: getDateKey(lastEaten),
+                    canEat: false
+                };
+            }
+            
+            return {
+                locked: false,
+                daysSince,
+                remaining: 0,
+                lastEaten: getDateKey(lastEaten),
+                canEat: true
+            };
+        }
+
+        // 初始化
+        function init() {
+            renderFoodGrid();
+            updateDateDisplay();
+            updateStats();
+            renderLockList();
+            renderHistory();
+            checkWarnings();
+            
+            setInterval(() => {
+                renderFoodGrid();
+                renderLockList();
+                checkWarnings();
+            }, 60000);
+        }
+
+        // 渲染食物网格
+        function renderFoodGrid() {
+            const grid = document.getElementById('foodGrid');
+            grid.innerHTML = '';
+
+            const dateKey = getDateKey(currentDate);
+            const todayFoods = foodData[dateKey] || [];
+            const today = getBeijingToday();
+            const isToday = currentDate.toDateString() === today.toDateString();
+
+            for (const [category, items] of Object.entries(foods)) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'food-category';
+
+                const emoji = category.split(' ')[0];
+                const name = category.split(' ')[1];
+
+                const moderateCount = items.filter(f => getFoodLevel(f) === 'moderate').length;
+                const mildCount = items.filter(f => getFoodLevel(f) === 'mild').length;
+
+                let badges = '';
+                if (moderateCount > 0) badges += `<span class="badge moderate">忌口×${moderateCount}</span>`;
+                if (mildCount > 0) badges += `<span class="badge locked">轮换×${mildCount}</span>`;
+
+                categoryDiv.innerHTML = `
+                    <div class="category-title">
+                        <div class="left">
+                            <span class="emoji">${emoji}</span>
+                            <span>${name}</span>
+                        </div>
+                        ${badges}
+                    </div>
+                    <div class="food-items">
+                        ${items.map(food => {
+                            const isEaten = todayFoods.includes(food);
+                            const level = getFoodLevel(food);
+                            
+                            let status = 'available';
+                            let lockTimer = '';
+                            
+                            // 针对当前查看日期检查锁定状态
+                            if (level === 'mild') {
+                                const lockInfo = getFoodLockInfo(food, currentDate);
+                                if (lockInfo && lockInfo.locked) {
+                                    status = 'locked';
+                                    lockTimer = `<div class="lock-timer ${lockInfo.remaining <= 1 ? 'urgent' : ''}">🔒 ${lockInfo.remaining}天后可食用</div>`;
+                                }
+                            }
+                            
+                            if (isEaten) {
+                                status = level === 'moderate' ? 'moderate' : 'locked';
+                            }
+
+                            let statusBadge = '';
+                            if (level === 'moderate') statusBadge = '<span class="status-badge moderate">忌口</span>';
+                            else if (status === 'locked') statusBadge = '<span class="status-badge locked">轮换</span>';
+                            else statusBadge = '<span class="status-badge available">可食</span>';
+
+                            return `
+                                <div class="food-item ${status}" onclick="toggleFood('${food}')">
+                                    ${statusBadge}
+                                    <div class="food-emoji">${getFoodEmoji(food)}</div>
+                                    <div class="food-name">${food}</div>
+                                    ${lockTimer}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                grid.appendChild(categoryDiv);
+            }
+        }
+
+        // 切换食物状态
+        function toggleFood(foodName) {
+            const dateKey = getDateKey(currentDate);
+            const today = getBeijingToday();
+            const isToday = currentDate.toDateString() === today.toDateString();
+            const level = getFoodLevel(foodName);
+            
+            // 针对当前查看日期检查锁定状态
+            if (level === 'mild') {
+                const lockInfo = getFoodLockInfo(foodName, currentDate);
+                if (lockInfo && lockInfo.locked) {
+                    const confirmEat = window.confirm(
+                        `⚠️ ${foodName} 仍在锁定中！\n\n` +
+                        `上次食用：${lockInfo.lastEaten}\n` +
+                        `已过天数：${lockInfo.daysSince}天\n` +
+                        `还需等待：${lockInfo.remaining}天\n\n` +
+                        `轮换间隔为 ${ROTATION_DAYS} 天，确认要提前食用吗？`
+                    );
+                    if (!confirmEat) return;
+                }
+            }
+            
+            if (!foodData[dateKey]) {
+                foodData[dateKey] = [];
+            }
+
+            const index = foodData[dateKey].indexOf(foodName);
+            if (index > -1) {
+                foodData[dateKey].splice(index, 1);
+                showToast(`已取消 ${foodName}`, 'default');
+            } else {
+                foodData[dateKey].push(foodName);
+                
+                if (level === 'moderate') {
+                    showToast(`⚠️ 已记录 ${foodName}（中度不耐受，建议忌口）`, 'error');
+                } else if (level === 'mild') {
+                    showToast(`✅ 已记录 ${foodName}，锁定${ROTATION_DAYS}天`, 'success');
                 } else {
-                    if (card.dataset.type === type) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
+                    showToast(`已记录 ${foodName}`, 'default');
+                }
+            }
+
+            saveData();
+            renderFoodGrid();
+            updateStats();
+            renderLockList();
+            renderHistory();
+            checkWarnings();
+        }
+
+        // 渲染锁定名单
+        function renderLockList() {
+            const lockItems = document.getElementById('lockItems');
+            const lockCount = document.getElementById('lockCount');
+            const today = getBeijingToday();
+            const isToday = currentDate.toDateString() === today.toDateString();
+            
+            const lockedFoods = [];
+            
+            // 基于当前查看的日期计算锁定状态
+            const referenceDate = currentDate;
+            
+            for (const food of rotationFoods) {
+                const lockInfo = getFoodLockInfo(food, referenceDate);
+                if (lockInfo && lockInfo.locked) {
+                    const totalMs = ROTATION_DAYS * 24 * 60 * 60 * 1000;
+                    const elapsed = lockInfo.daysSince * 24 * 60 * 60 * 1000;
+                    const progress = Math.min((elapsed / totalMs) * 100, 100);
+                    
+                    lockedFoods.push({
+                        food,
+                        emoji: getFoodEmoji(food),
+                        remaining: lockInfo.remaining,
+                        daysSince: lockInfo.daysSince,
+                        lastEaten: lockInfo.lastEaten,
+                        progress
+                    });
+                }
+            }
+            
+            lockedFoods.sort((a, b) => b.remaining - a.remaining);
+            
+            lockCount.textContent = lockedFoods.length;
+            
+            if (lockedFoods.length === 0) {
+                if (isToday) {
+                    lockItems.innerHTML = '<div class="empty-locks">🎉 太棒了！目前没有食物在锁定中</div>';
+                } else {
+                    lockItems.innerHTML = `<div class="empty-locks">📅 查看日期暂无锁定食物</div>`;
+                }
+                return;
+            }
+            
+            lockItems.innerHTML = lockedFoods.map(item => `
+                <div class="lock-item">
+                    <div class="emoji">${item.emoji}</div>
+                    <div class="info">
+                        <div class="name">${item.food}</div>
+                        <div class="timer ${item.remaining <= 1 ? 'urgent' : ''}">
+                            ⏰ 剩余 ${item.remaining} 天
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${item.progress}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 检查警告
+        function checkWarnings() {
+            const dateKey = getDateKey(currentDate);
+            const todayFoods = foodData[dateKey] || [];
+            const warnings = [];
+
+            const moderateEaten = todayFoods.filter(f => getFoodLevel(f) === 'moderate');
+            if (moderateEaten.length > 0) {
+                warnings.push(`🚫 中度不耐受食物：${moderateEaten.join('、')} - 建议忌口`);
+            }
+
+            // 针对当前查看日期检查轮换警告
+            for (const food of todayFoods) {
+                if (getFoodLevel(food) === 'mild') {
+                    const lockInfo = getFoodLockInfo(food, currentDate);
+                    if (lockInfo && lockInfo.locked) {
+                        warnings.push(`⚠️ ${food} 提前食用，距解锁还剩 ${lockInfo.remaining} 天`);
                     }
                 }
-            });
-
-            // 滚动到列表区域
-            document.getElementById('listings').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // 搜索功能
-        const searchInput = document.querySelector('.search-input');
-        const searchBtn = document.querySelector('.search-btn');
-
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
             }
-        });
 
-        function performSearch() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const cards = document.querySelectorAll('.parrot-card');
+            const warningPanel = document.getElementById('warningPanel');
+            const warningList = document.getElementById('warningList');
 
-            cards.forEach(card => {
-                const name = card.querySelector('.parrot-name').textContent.toLowerCase();
-                const type = card.querySelector('.parrot-type').textContent.toLowerCase();
-                const price = card.querySelector('.parrot-price').textContent;
-
-                if (name.includes(searchTerm) || 
-                    type.includes(searchTerm) || 
-                    price.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // 滚动到列表区域
-            document.getElementById('listings').scrollIntoView({ behavior: 'smooth' });
+            if (warnings.length > 0) {
+                warningPanel.style.display = 'block';
+                warningList.innerHTML = warnings.map(w => `<li>${w}</li>`).join('');
+            } else {
+                warningPanel.style.display = 'none';
+            }
         }
+
+        // 更新日期显示
+        function updateDateDisplay() {
+            document.getElementById('currentDate').textContent = formatDate(currentDate);
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            const today = getBeijingToday();
+            const isToday = date.toDateString() === today.toDateString();
+            
+            if (isToday) return '今天';
+
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (date.toDateString() === yesterday.toDateString()) return '昨天';
+
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (date.toDateString() === tomorrow.toDateString()) return '明天';
+
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            return `${year}/${month}/${day} ${weekdays[date.getDay()]}`;
+        }
+
+        // 日期导航
+        function changeDate(delta) {
+            currentDate.setDate(currentDate.getDate() + delta);
+            updateDateDisplay();
+            renderFoodGrid();
+            updateStats();
+            checkWarnings();
+        }
+
+        // 跳转到今天
+        function goToToday() {
+            currentDate = getBeijingToday();
+            updateDateDisplay();
+            renderFoodGrid();
+            updateStats();
+            checkWarnings();
+        }
+
+        // 更新统计
+        function updateStats() {
+            const dateKey = getDateKey(currentDate);
+            const todayFoods = foodData[dateKey] || [];
+            const today = getBeijingToday();
+            const isToday = currentDate.toDateString() === today.toDateString();
+            
+            document.getElementById('totalEaten').textContent = todayFoods.length;
+            document.getElementById('moderateCount').textContent = todayFoods.filter(f => getFoodLevel(f) === 'moderate').length;
+
+            let lockedCount = 0;
+            let availableCount = 0;
+            
+            // 针对当前查看日期计算锁定/可食用数量
+            for (const food of rotationFoods) {
+                const lockInfo = getFoodLockInfo(food, currentDate);
+                if (lockInfo && lockInfo.locked) lockedCount++;
+                else availableCount++;
+            }
+            
+            document.getElementById('lockedCount').textContent = lockedCount;
+            document.getElementById('availableCount').textContent = availableCount;
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const dates = Object.keys(foodData).filter(key => foodData[key] && foodData[key].length > 0);
+            
+            if (dates.length === 0) {
+                list.innerHTML = '<div class="empty-history"><div class="emoji">📝</div><p>暂无记录</p></div>';
+                return;
+            }
+
+            dates.sort((a, b) => new Date(b) - new Date(a));
+
+            list.innerHTML = dates.slice(0, 30).map(date => {
+                const foods = foodData[date] || [];
+                return `
+                    <div class="history-date-group">
+                        <div class="history-date-header">
+                            <span>${formatDate(new Date(date))}</span>
+                            <span style="font-size: 0.8rem; color: #666;">${foods.length}种</span>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-foods">
+                                ${foods.map(f => {
+                                    const level = getFoodLevel(f);
+                                    const tagClass = level === 'moderate' ? 'moderate' : (level === 'mild' ? 'locked' : 'available');
+                                    return `<span class="history-food-tag ${tagClass}">${f}</span>`;
+                                }).join('')}
+                            </div>
+                            <button class="history-delete" onclick="deleteHistory('${date}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 删除记录
+        function deleteHistory(dateKey) {
+            if (confirm('确定要删除这天的记录吗？')) {
+                delete foodData[dateKey];
+                saveData();
+                updateStats();
+                renderHistory();
+                renderFoodGrid();
+                renderLockList();
+                checkWarnings();
+                showToast('记录已删除');
+            }
+        }
+
+        // 清空全部记录
+        function clearAllHistory() {
+            if (confirm('确定要清空全部记录吗？此操作不可恢复。')) {
+                foodData = {};
+                saveData();
+                updateStats();
+                renderHistory();
+                renderFoodGrid();
+                renderLockList();
+                checkWarnings();
+                showToast('全部记录已清空');
+            }
+        }
+
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('foodIntoleranceData', JSON.stringify(foodData));
+        }
+
+        // 显示提示
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') toast.classList.add('error');
+            else if (type === 'success') toast.classList.add('success');
+            else if (type === 'warning') toast.classList.add('warning');
+            setTimeout(() => toast.className = 'toast', 2500);
+        }
+
+        init();
     </script>
 </body>
 </html>
+
